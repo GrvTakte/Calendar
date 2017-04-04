@@ -36,7 +36,7 @@ public class Calender{
     Form calendar, saveEvent;
      Label dateLabel;
      TextField eventArea, descriptionArea;
-     Calendar cal;
+     Customised cal;
      
      
     public void init(Object context) {
@@ -48,6 +48,9 @@ public class Calender{
         // Pro only feature, uncomment if you have a pro subscription
         // Log.bindCrashProtection(true);
     }
+
+    
+    
     
    
     
@@ -72,9 +75,10 @@ public class Calender{
         }
         
         calendar = new Form("Events", new BoxLayout(BoxLayout.Y_AXIS));
-        cal = new Calendar();
+        cal = new Customised();
         
         calendar.add(cal);
+       
         Label date = new Label("Event Date:- ");
         dateLabel = new Label();
         Label event = new Label("Event:- ");
@@ -97,8 +101,14 @@ public class Calender{
                 } catch (ParseException ex) {
                     ex.printStackTrace();
                 }               
+                
+               
             }
+            
+            
         });
+        
+        
         
         Toolbar tb = new Toolbar();
         calendar.setToolBar(tb);
