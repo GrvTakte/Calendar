@@ -1,12 +1,10 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
+
 package com.pivotal.calendar;
 
 import com.codename1.ui.Button;
 import com.codename1.ui.Calendar;
+import com.codename1.ui.events.ActionEvent;
+import com.codename1.ui.events.ActionListener;
 
 /**
  *
@@ -19,8 +17,19 @@ public class Customised extends Calendar{
 
     @Override
     protected void updateButtonDayDate(Button dayButton, int currentMonth, int day) {
-       dayButton.getAllStyles().setBgColor(0xef5555);
+       dayButton.setText(""+day);
+       dayButton.addActionListener(new ActionListener() {
+           @Override
+           public void actionPerformed(ActionEvent evt) {
+               dayButton.getAllStyles().setBgColor(0xef5555);
        dayButton.setText("* "+day);
+       dayButton.getLabelForComponent();
+           }
+           
+       });
+       
+       
+       
     }
 
     @Override
