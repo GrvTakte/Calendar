@@ -71,6 +71,7 @@ public class Calender{
                     
                 try{
                             db = Display.getInstance().openOrCreate("Events.db");
+                            db.execute("DROP TABLE CalendarData");
                             db.execute("CREATE TABLE IF NOT EXISTS CalendarData (Date date NOT NULL,EventName varchar(255) NOT NULL, EventDescription varchar(255) NOT NULL)");
                 }
                             catch(IOException e){
@@ -282,10 +283,15 @@ public class Customised extends Calendar{
           int i,j,columns;
           Calender obj = new Calender();
           Storage s1 = Storage.getInstance();
+         
+          public Customised(){
+              s1.writeObject("Hello", "hello");
+                    Log.p(s1.readObject("Hello").toString());
+          }
           
-           
+          
            public void  check(){
-                         
+                        
               ArrayList<String[]> ArrayData = new ArrayList<String[]>();
               try{
               ShowEvent.removeAll();
@@ -316,18 +322,18 @@ public class Customised extends Calendar{
           } 
           for( int x = 0 ; x< ArrayData.size(); x++){
          Log.p(ArrayData.get(x)[0]);
-              s1.writeObject("Date"+x, ArrayData.get(x)[0]); 
+              //s1.writeObject("Date"+x, ArrayData.get(x)[0]); 
               
           }
          
          }
           
           
-          
+        
           @Override
           protected void updateButtonDayDate(Button dayButton,int currentMonth, int day) {
-        dayButton.setText(""+day);
-        
+            dayButton.setText(""+day);
+          
         
         
           dayButton.addActionListener(new ActionListener() {
@@ -404,10 +410,7 @@ public class Customised extends Calendar{
           
 //============================================================================================================
           } 
-          });          
-          
-            
-          
+          });        
           }
           
          
