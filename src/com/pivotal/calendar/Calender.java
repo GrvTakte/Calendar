@@ -43,13 +43,14 @@ public class Calender{
 
     private Form current;
     private Resources theme;
-    Form calendar, saveEvent, DataEvent,ShowEvent;
-     Label dateLabel;
-     TextField eventArea, descriptionArea;
-     Customised cal;
-     Database db = null;
-     Cursor cur= null;
-     Button add;
+    public Form calendar, saveEvent, dataEvent,showEvent;
+    public Label dateLabel;
+    public TextField eventArea, descriptionArea;
+    public Customised cal;
+    public Database db = null;
+    public Cursor cur= null;
+    public Button add;
+    int n=0;
      
     public void init(Object context) {
         theme = UIManager.initFirstTheme("/theme");
@@ -73,8 +74,9 @@ public class Calender{
                             db = Display.getInstance().openOrCreate("Events.db");
                            
                             db.execute("CREATE TABLE IF NOT EXISTS CalendarData (Date date NOT NULL,EventName varchar(255) NOT NULL, EventDescription varchar(255) NOT NULL)");
-                            db.execute("INSERT INTO CalendarData(Date,EventName,EventDescription) VALUES(?,?,?)", new String[]{"2017-04-14","hi","hello"});
-                            db.execute("INSERT INTO CalendarData(Date,EventName,EventDescription) VALUES(?,?,?)", new String[]{"2017-04-12","bye","hello"});
+                            db.execute("INSERT INTO CalendarData (Date, EventName, EventDescription) VALUES (?, ?, ?)", new String[]{"2017-04-12","hi","hello"});
+                           // db.execute("INSERT INTO CalendarData(Date,EventName,EventDescription) VALUES(?,?,?)", new String[]{"2017-04-14","hi","hello"});
+                            //db.execute("INSERT INTO CalendarData(Date,EventName,EventDescription) VALUES(?,?,?)", new String[]{"2017-04-12","bye","hello"});
                 }
                             catch(IOException e){
                                             e.printStackTrace();
@@ -107,30 +109,30 @@ public void start() {
             }
 //DataEvent & calendar Form and Componenet========================================================================================================
          
-           ShowEvent = new Form("Event Explorer", new BoxLayout(BoxLayout.Y_AXIS));
+           showEvent = new Form("Event Explorer", new BoxLayout(BoxLayout.Y_AXIS));
             Command back2 = new Command("Back"){
                 public void actionPerformed(ActionEvent ev){
                         calendar.show();
                 }  
             };
             
-         ShowEvent.setBackCommand(back2); 
+         showEvent.setBackCommand(back2); 
          Toolbar Tbar = new Toolbar();
-         ShowEvent.setToolbar(Tbar);
+         showEvent.setToolbar(Tbar);
          Tbar.addCommandToLeftBar("",FontImage.createMaterial(FontImage.MATERIAL_ARROW_BACK, UIManager.getInstance().getComponentStyle("Title")),back2);
 
-          DataEvent = new Form("Data Explorer", new BorderLayout());
+          dataEvent = new Form("Data Explorer", new BorderLayout());
                 Command back1 = new Command("Back"){
                         public void actionPerformed(ActionEvent ev){
                                     calendar.show();
                         }  
                 };
                 
-            DataEvent.setBackCommand(back1);
+            dataEvent.setBackCommand(back1);
             calendar = new Form("Events", new BoxLayout(BoxLayout.Y_AXIS));
             checkEvent();
+                      
             cal = new Customised();
-            cal.check();
             calendar.add(cal);
        
             Label date = new Label("Event Date:- ");
@@ -192,21 +194,21 @@ public void start() {
                                                                     }
                                                                             Object[][] arr = new Object[data.size()][];
                                                                             data.toArray(arr);
-                                                                            DataEvent.add(BorderLayout.CENTER, new Table(new DefaultTableModel(columnNames, arr)));
+                                                                            dataEvent.add(BorderLayout.CENTER, new Table(new DefaultTableModel(columnNames, arr)));
                                                         } 
                                                             else {
-                                                                            DataEvent.add(BorderLayout.CENTER, "Query returned no results");
+                                                                            dataEvent.add(BorderLayout.CENTER, "Query returned no results");
                                                             }
                                             } 
                                                 else {
-                                                        DataEvent.add(BorderLayout.CENTER, "Query returned no results");
+                                                        dataEvent.add(BorderLayout.CENTER, "Query returned no results");
                                                 }
                                  }
                                         catch(IOException e){
                                                         e.printStackTrace();
                                         }
                                 
-                            DataEvent.show();
+                            dataEvent.show();
                             dateLabel.setText("");
                             eventArea.setText("");
                             descriptionArea.setText("");
@@ -237,7 +239,7 @@ public void start() {
                 add.addActionListener(new ActionListener() {
                             @Override
                              public void actionPerformed(ActionEvent evt) {
-                                                    Log.p(dateLabel.getText().toString());     
+                                                    Log.p(dateLabel.getText());     
        
                                                     if((dateLabel.getText()== "") || (eventArea.getText() == "") || (descriptionArea.getText()== "")){
                                                                                             Dialog.show("Required field", "Please fill all the fields", "OK", "");
@@ -286,94 +288,41 @@ public void destroy() {
 public class Customised extends Calendar{
           ArrayList<String[]> data = new ArrayList<>();
           int i,j,columns;
-          Calender obj = new Calender();
          
-          public Customised(){
-             
-          }
+          public int iterate;
           
-          
-          public void  check(){
-                        
-                    ArrayList<String[]> ArrayData = new ArrayList<String[]>();
-                    try{
-                                ShowEvent.removeAll();
-                                cur =  db.executeQuery("select strftime('%d', Date) from CalendarData");
-                                int columns2 = cur.getColumnCount();
-                                if(columns2 > 0) {
-                                                boolean next = cur.next();
-                                                if(next) {
-                                                            String[] columnNames = new String[columns2];
-                                                            for(int iter = 0 ; iter < columns ; iter++) {
-                                                                            columnNames[iter] = cur.getColumnName(iter);
-                                                            }
-                                                            while(next) {
-                                                                        Row currentRow = cur.getRow();
-                                                                        String[] currentRowArray = new String[columns2];
-                                                                        for(int iter = 0 ; iter < columns2 ; iter++) {
-                                                                                        currentRowArray[iter] = currentRow.getString(iter);
-                                                                        }
-                                                                        ArrayData.add(currentRowArray);
-                                                                        next = cur.next();
-                                                            }
-                                                            Object[][] arr = new Object[ArrayData.size()][];
-                                                            ArrayData.toArray(arr);
-                                                }
-                                }
-                    }  catch(IOException e){
-                                        e.printStackTrace();
-                       } 
-          
-                    for( int x = 0 ; x< ArrayData.size(); x++){
-                                            Log.p(ArrayData.get(x)[0]);
-                                            //s1.writeObject("Date"+x, ArrayData.get(x)[0]); 
-                    }
-         
-         }
+      
           
           
         
           @Override
           protected void updateButtonDayDate(Button dayButton,int currentMonth, int day) {
-            
-                            Storage storeValue = Storage.getInstance();
-                            Storage storeNumber = Storage.getInstance();
-                            String parseNumber = storeNumber.readObject("number").toString();
-                            int Number = Integer.parseInt(parseNumber);
-           // Log.p("Hello from codename one"+storeValue.readObject("Date"+Number).toString());
-          /*  
-          if(day==Integer.parseInt(s4.readObject("Date"+Number).toString())){
-               dayButton.setText("*"+day);
-               Number--;
-           }else{
-              dayButton.setText(""+day);
-          }
-        Log.p("updateButton() call");
-        */
-         
-                            if(storeNumber.readObject("number").toString()!=null) {
-                                                    if(day!=Integer.parseInt(storeValue.readObject("Date"+Number).toString())){
+                          Storage  storeValue1 = Storage.getInstance();
+           Storage storeNumber1 = Storage.getInstance();
+            int Number = Integer.parseInt(storeNumber1.readObject("number").toString());
+                           
+                           
+                            if((storeNumber1.readObject("number").toString()!=null) && (n<Number)) {
+                                                    if(day!=Integer.parseInt(storeValue1.readObject("Date"+n).toString())){
                                                                                     dayButton.setText(""+day);
+                                                                                    
                                                     } else{
                                                                 dayButton.setText("*"+day);
-                                                                Number--;
-                                                                if((Number<0)) {
-                                                                                   Number++;
-                                                                }
-                                                        }
-                                                    Number--;
+                                                               n++;
+                                                           }
+                                                   
                             } else{
-                                        dayButton = new Button(""+day);
+                                        dayButton.setText(""+day);
                               }
          
-          
+                           
           
           dayButton.addActionListener(new ActionListener() {
                             @Override
                             public void actionPerformed(ActionEvent evt) {     
 //Check which date having how many number of events===============================================================
                                                 try{
-                                                        ShowEvent.removeAll();
+                                                        showEvent.removeAll();
                                                         cur =  db.executeQuery("SELECT EventName, EventDescription from CalendarData  WHERE Date = ? ", dateLabel.getText());
                                                         columns = cur.getColumnCount();
                                                         if(columns > 0) {
@@ -408,7 +357,7 @@ public class Customised extends Calendar{
             Container container1 = TableLayout.encloseIn(2, a,b);
             container1.setUIID("container1");
           
-            ShowEvent.add(container1);
+            showEvent.add(container1);
           
           
             for( i = 0 ; i< data.size(); i++){
@@ -416,10 +365,10 @@ public class Customised extends Calendar{
                                             Log.p(data.get(i)[j]);
                                             SpanLabel spanData = new SpanLabel(data.get(i)[j]);
                                             spanData.setUIID("SpanLabel");
-                                            ShowEvent.add(spanData);
+                                            showEvent.add(spanData);
                             }
                             Label space = new Label("=======================");
-                            ShowEvent.add(space);
+                            showEvent.add(space);
                             Log.p("###################");
             }
             data.clear();
@@ -429,7 +378,7 @@ public class Customised extends Calendar{
                                     calendar.show();
                         }
                         else {
-                                  ShowEvent.show();
+                                  showEvent.show();
                         }
             }
             else {
@@ -456,7 +405,7 @@ public void checkEvent(){
       ArrayList<String[]> DateData = new ArrayList<String[]>();
         try{
             
-        cur = db.executeQuery("select distinct strftime('%d', Date) from CalendarData order by Date desc");
+        cur = db.executeQuery("select distinct strftime('%d', Date) from CalendarData order by Date asc");
         int column = cur.getColumnCount();
         if(column > 0){
                 boolean next = cur.next();
@@ -482,15 +431,18 @@ public void checkEvent(){
 }               catch(IOException e){
                             e.printStackTrace();
               }
-       Storage storeNumber = Storage.getInstance();
-        Storage storeValue = Storage.getInstance();
-                for(int i = 0 ; i< DateData.size(); i++){           
-                 /*  Log.p(DateData.get(i)[0]);
-                storeValue.writeObject("Date"+i, DateData.get(i)[0]);
-                 Log.p(storeValue.readObject("Date"+i).toString());
-                 storeNumber.writeObject("number", i);*/
+       Storage storeNumber1 = Storage.getInstance();
+        Storage storeValue1 = Storage.getInstance(); 
+        int i;
+                for(i = 0 ; i< DateData.size(); i++){           
+                  storeNumber1.clearCache();
+                  storeValue1.clearCache();
+                storeValue1.writeObject("Date"+i, DateData.get(i)[0]);
+                 
+                 Log.p(storeValue1.readObject("Date"+i).toString());
+                 
           }
-     
+            storeNumber1.writeObject("number", i);
+            Log.p(storeNumber1.readObject("number").toString());
 }
-
 }
